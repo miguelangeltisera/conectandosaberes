@@ -1,166 +1,137 @@
+%%html
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conectando Saberes | Pedagogía Audiovisual Interactiva</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Conectando Saberes</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="script.js" defer></script>
+    
+    <style>
+        /* (Todo el CSS va aquí, sin cambios) */
+        :root {
+            --primary-color: #2c3e50; --secondary-color: #34495e; --accent-color: #3498db;
+            --highlight-color: #e74c3c; --light-color: #ecf0f1; --font-color: #333;
+            --bg-color: #ffffff; --font-family: 'Poppins', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font-family); line-height: 1.6; background-color: var(--bg-color); color: var(--font-color); }
+        header { background: var(--primary-color); color: var(--light-color); padding: 2rem 1rem; text-align: center; border-bottom: 5px solid var(--accent-color); }
+        header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        main { max-width: 1000px; margin: auto; padding: 1rem; }
+        section { padding: 3rem 1rem; margin-bottom: 2rem; border-bottom: 1px solid #ddd; }
+        section h2 { color: var(--primary-color); text-align: center; margin-bottom: 1.5rem; font-size: 2rem; }
+        .hidden { display: none !important; }
+        #map-section { text-align: center; }
+        #concept-map-container { position: relative; width: 100%; max-width: 600px; height: 400px; margin: 2rem auto; }
+        #map-lines { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; }
+        .node { position: absolute; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0.5rem; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; z-index: 2; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .node:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .node.central { background: var(--highlight-color); width: 150px; height: 150px; font-size: 1.2rem; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .node.theory-node { background: var(--accent-color); width: 120px; height: 120px; }
+        .theory-card { background: var(--light-color); border-radius: 8px; padding: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 1rem; }
+        .theory-card .application { margin-top: 2rem; padding-top: 1.5rem; border-top: 2px dashed var(--accent-color); }
+        .application h3 { color: var(--secondary-color); margin-bottom: 1rem; }
+        .interactive-term { color: var(--accent-color); font-weight: bold; cursor: pointer; text-decoration: underline dotted; }
+        #prosumer-simulator { display: flex; flex-direction: column; gap: 1rem; }
+        #video-script { width: 100%; height: 80px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-family: var(--font-family); }
+        #produce-btn, .analysis-btn, #modal-close { padding: 0.8rem 1.5rem; background: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer; transition: background 0.3s; font-weight: bold; }
+        #produce-btn:hover, .analysis-btn:hover, #modal-close:hover { background: var(--primary-color); }
+        #video-output { background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 4px; }
+        #video-output .storyboard { display: flex; gap: 10px; margin-bottom: 1rem; }
+        #video-output img { border-radius: 4px; width: 32%; }
+        #output-script { font-style: italic; color: var(--secondary-color); }
+        .analysis-tool { margin-top: 1rem; }
+        .analysis-tool button { margin: 5px; }
+        .analysis-tool button.active { background-color: var(--highlight-color); }
+        #mission-map { position: relative; max-width: 100%; cursor: pointer; }
+        #mission-map img { width: 100%; border-radius: 8px; }
+        .hotspot { position: absolute; width: 30px; height: 30px; background: var(--highlight-color); border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.7; } 70% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.7; } }
+        #strategies-section h2 { margin-bottom: 3rem; }
+        .strategies-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+        .strategy-card-flipper { background-color: transparent; height: 150px; perspective: 1000px; cursor: pointer; }
+        .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.7s; transform-style: preserve-3d; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-radius: 8px; }
+        .strategy-card-flipper.is-flipped .card-inner { transform: rotateY(180deg); }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .card-front { background: var(--secondary-color); color: white; font-size: 1.3rem; font-weight: bold; }
+        .card-back { background: var(--accent-color); color: white; transform: rotateY(180deg); flex-direction: column; }
+        .card-back h4 { border-bottom: 1px solid white; margin-bottom: 0.5rem; padding-bottom: 0.5rem; }
+        footer { text-align: center; padding: 2rem; margin-top: 2rem; background: var(--light-color); color: #777; font-size: 0.9rem; }
+        #modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        #modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%; text-align: center; }
+        #modal-title { margin-bottom: 1rem; color: var(--primary-color); }
+        #modal-close { margin-top: 1.5rem; }
+        @media (max-width: 768px) {
+            header h1 { font-size: 2rem; } section h2 { font-size: 1.8rem; }
+            #concept-map-container { height: auto; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; position: static; }
+            #map-lines { display: none; }
+            .node { position: static; transform: none !important; }
+            .node.central { width: 180px; height: 60px; border-radius: 30px;}
+            .node.theory-node { width: 220px; height: 50px; border-radius: 25px;}
+        }
+    </style>
 </head>
 <body>
-
     <header>
         <h1>Conectando Saberes</h1>
         <p>La Revolución Audiovisual en la Pedagogía Digital</p>
     </header>
-
     <main>
-        <!-- SECCIÓN 1: MAPA CONCEPTUAL INTERACTIVO -->
-        <section id="map-section" class="interactive-section">
-            <h2>Navega la Red Pedagógica</h2>
-            <p>Haz clic en un nodo para explorar una teoría. Aprende conectando ideas.</p>
-            <div id="concept-map-container">
-                <svg id="map-lines"></svg>
-                <div class="node central" id="node-central">Pedagogía Digital</div>
-                <div class="node theory-node" id="node-conectivismo" data-target="#conectivismo">📘 Conectivismo</div>
-                <div class="node theory-node" id="node-participacion" data-target="#participacion">🤝 P. de la Participación</div>
-                <div class="node theory-node" id="node-critica" data-target="#critica">🔍 P. Crítica Digital</div>
-                <div class="node theory-node" id="node-expandido" data-target="#expandido">🌐 Aprendizaje Expandido</div>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 2: TEORÍAS PEDAGÓGICAS -->
+        <section id="map-section" class="interactive-section"><h2>Navega la Red Pedagógica</h2><p>Haz clic en un nodo para explorar una teoría. Aprende conectando ideas.</p><div id="concept-map-container"><svg id="map-lines"></svg><div class="node central" id="node-central">Pedagogía Digital</div><div class="node theory-node" data-target="#conectivismo">📘 Conectivismo</div><div class="node theory-node" data-target="#participacion">🤝 P. de la Participación</div><div class="node theory-node" data-target="#critica">🔍 P. Crítica Digital</div><div class="node theory-node" data-target="#expandido">🌐 Aprendizaje Expandido</div></div></section>
         <div id="theories-content">
-            <section id="conectivismo" class="theory-card">
-                <h2>📘 Conectivismo</h2>
-                <p>El conocimiento reside en redes de información. Aprender es navegar y conectar nodos como 
-                <span class="interactive-term" data-title="Redes de Información" data-definition="Conjuntos de personas, bases de datos, medios y IA que almacenan y distribuyen conocimiento.">redes de información</span>, 
-                creando <span class="interactive-term" data-title="PLE (Personal Learning Environment)" data-definition="Entorno Personal de Aprendizaje: un sistema que ayuda a los estudiantes a gestionar su propio aprendizaje. Incluye herramientas, comunidades y servicios.">PLEs</span> y participando en 
-                <span class="interactive-term" data-title="MOOC (Massive Open Online Course)" data-definition="Cursos en línea masivos y abiertos diseñados para una participación ilimitada y acceso abierto a través de la web.">MOOCs</span>.
-                </p>
-                <div class="application">
-                    <h3>🔗 Aplicación Audiovisual Interactiva</h3>
-                    <p>Este video en español explica claramente la teoría del aprendizaje para la era digital.</p>
-                   <!-- DESPUÉS (AÑADIR ESTO) -->
-<video width="100%" controls autoplay muted loop style="border-radius: 8px; margin-top: 1rem;">
-    <source src="conectandosaberes.mp4" type="video/mp4">
-    Tu navegador no soporta la etiqueta de video. Este video resume las ideas del conectivismo.
-</video>
-                </div>
-            </section>
-            
-            <section id="participacion" class="theory-card">
-                <h2>🤝 Pedagogía de la Participación</h2>
-                <p>Los estudiantes son <strong>prosumidores</strong> (productores + consumidores) de conocimiento, creando y compartiendo en una cultura de colaboración a través de narrativas digitales y proyectos.</p>
-                <div class="application">
-                    <h3>🎬 ¡Conviértete en Prosumidor! (Simulador)</h3>
-                    <p>Crea tu propio video-minuto. Escribe un guion corto y presiona "Producir".</p>
-                    <div id="prosumer-simulator">
-                        <textarea id="video-script" placeholder="Escribe aquí un guion corto (máx 150 caracteres)..." maxlength="150"></textarea>
-                        <button id="produce-btn">Producir mi Video-Minuto</button>
-                        <div id="video-output" class="hidden">
-                            <h4>¡Tu Creación!</h4>
-                            <div class="storyboard">
-                                <img src="https://via.placeholder.com/150/8E44AD/FFFFFF?text=Escena+1" alt="Escena 1">
-                                <img src="https://via.placeholder.com/150/3498DB/FFFFFF?text=Escena+2" alt="Escena 2">
-                                <img src="https://via.placeholder.com/150/2ECC71/FFFFFF?text=Escena+3" alt="Escena 3">
-                            </div>
-                            <p id="output-script"></p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
+            <section id="conectivismo" class="theory-card"><h2>📘 Conectivismo</h2><p>El conocimiento reside en redes de información. Aprender es navegar y conectar nodos como <span class="interactive-term" data-title="Redes de Información" data-definition="Conjuntos de personas, bases de datos, medios y IA que almacenan y distribuyen conocimiento.">redes de información</span>, creando <span class="interactive-term" data-title="PLE (Personal Learning Environment)" data-definition="Entorno Personal de Aprendizaje: un sistema que ayuda a los estudiantes a gestionar su propio aprendizaje. Incluye herramientas, comunidades y servicios.">PLEs</span> y participando en <span class="interactive-term" data-title="MOOC (Massive Open Online Course)" data-definition="Cursos en línea masivos y abiertos diseñados para una participación ilimitada y acceso abierto a través de la web.">MOOCs</span>.</p><div class="application"><h3>🔗 Aplicación Audiovisual Interactiva</h3><p>Este video resume las ideas clave del aprendizaje en la era conectada.</p><video width="100%" controls autoplay muted loop style="border-radius: 8px; margin-top: 1rem;"><source src="conectivismo-video.mp4" type="video/mp4">Tu navegador no soporta la etiqueta de video.</video></div></section>
+            <section id="participacion" class="theory-card"><h2>🤝 Pedagogía de la Participación</h2><p>Los estudiantes son <strong>prosumidores</strong> (productores + consumidores) de conocimiento, creando y compartiendo en una cultura de colaboración a través de narrativas digitales y proyectos.</p><div class="application"><h3>🎬 ¡Conviértete en Prosumidor! (Simulador)</h3><p>Crea tu propio video-minuto. Escribe un guion corto y presiona "Producir".</p><div id="prosumer-simulator"><textarea id="video-script" placeholder="Escribe aquí un guion corto (máx 150 caracteres)..." maxlength="150"></textarea><button id="produce-btn">Producir mi Video-Minuto</button><div id="video-output" class="hidden"><h4>¡Tu Creación!</h4><div class="storyboard"><img src="https://via.placeholder.com/150/8E44AD/FFFFFF?text=Escena+1" alt="Escena 1"><img src="https://via.placeholder.com/150/3498DB/FFFFFF?text=Escena+2" alt="Escena 2"><img src="https://via.placeholder.com/150/2ECC71/FFFFFF?text=Escena+3" alt="Escena 3"></div><p id="output-script"></p></div></div></div></section>
             <section id="critica" class="theory-card">
                 <h2>🔍 Pedagogía Crítica Digital</h2>
                 <p>Examina el poder, el acceso y la ideología en las plataformas digitales. Se trata de educar para leer los medios y las redes con una mirada crítica, ética y política.</p>
                 <div class="application">
                     <h3>📽️ Deconstruye el Mensaje (Herramienta de Análisis)</h3>
-                    <p>Observa este clásico anuncio de Coca-Cola en español. ¿Qué técnicas persuasivas utiliza para conectar con la audiencia?</p>
+                    <p>Observa este anuncio. ¿Cuál es su intención principal? Usa la herramienta para analizarlo.</p>
+                    <!-- **** CAMBIO 1: VIDEO **** -->
                     <video controls width="100%">
-                        <source src="https://archive.org/download/Coca-ColaParaTodos/Coca-Cola%20-%20Para%20Todos.mp4" type="video/mp4">
-                        Tu navegador no soporta el video. (Ejemplo: Anuncio "Para Todos" de Coca-Cola)
+                        <source src="ComercialCocacola.mp4" type="video/mp4">
+                        Tu navegador no soporta el video. (Ejemplo: Anuncio de Coca-Cola)
                     </video>
-                    <div class="analysis-tool">
-                        <label for="intention-slider">Intención: de Informativo a Persuasivo</label>
-                        <input type="range" id="intention-slider" min="0" max="100" value="50">
-                        <p><strong>Identifica técnicas:</strong></p>
-                        <button class="analysis-btn">Apelación a la Emoción</button>
-                        <button class="analysis-btn">Uso de Símbolos</button>
-                        <button class="analysis-btn">Mensaje de "Unión"</button>
-                    </div>
+                    <div class="analysis-tool"><label for="intention-slider">Intención: de Informativo a Persuasivo</label><input type="range" id="intention-slider" min="0" max="100" value="50"><p><strong>Identifica técnicas:</strong></p><button class="analysis-btn">Apelación a la Emoción</button><button class="analysis-btn">Uso de Símbolos</button><button class="analysis-btn">Mensaje de "Rebeldía"</button></div>
                 </div>
             </section>
-            
             <section id="expandido" class="theory-card">
                 <h2>🌐 Aprendizaje Expandido</h2>
                 <p>El aprendizaje ocurre en todas partes, no solo en el aula. Se revaloriza el aprendizaje informal en comunidades, redes y experiencias mediadas por la tecnología.</p>
                 <div class="application">
                     <h3>📹 Tu Aula es el Mundo (Mapa de Misiones)</h3>
                     <p>Haz clic en un punto del mapa para descubrir una misión de aprendizaje en el mundo real.</p>
+                    <!-- **** CAMBIO 2: IMAGEN **** -->
                     <div id="mission-map">
-                        <img src="https://i.imgur.com/sC5v4pW.png" alt="Mapa de misiones de la ciudad">
+                        <img src="CartelSintaxis3.png" alt="Mapa mental de sintaxis pedagógica">
                         <div class="hotspot" style="top: 40%; left: 25%;" data-mission="Ve a un parque y crea una bitácora audiovisual de 1 minuto sobre 3 tipos de plantas diferentes que encuentres."></div>
                         <div class="hotspot" style="top: 65%; left: 60%;" data-mission="Visita un mercado local y documenta en video los sonidos y colores. ¿Qué historia cuenta el lugar?"></div>
                         <div class="hotspot" style="top: 20%; left: 75%;" data-mission="Entrevista a un familiar sobre un objeto antiguo que conserve. Graba su historia en formato de mini-documental."></div>
                     </div>
                 </div>
             </section>
+            <section id="strategies-section"><h2>🎥 Estrategias Audiovisuales en Acción</h2><div class="strategies-grid"><div class="strategy-card-flipper"><div class="card-inner"><div class="card-front">🎙️ Storytelling Digital</div><div class="card-back"><h4>Aplicación Concreta</h4><p>Crear historias personales, científicas o ficticias en formato audiovisual para desarrollar la empatía y la estructura narrativa.</p></div></div></div><div class="strategy-card-flipper"><div class="card-inner"><div class="card-front">🎞️ Videoeducación Participativa</div><div class="card-back"><h4>Aplicación Concreta</h4><p>Los alumnos diseñan, graban y editan su propio contenido como parte del proceso de aprendizaje, fomentando la autonomía.</p></div></div></div><div class="strategy-card-flipper"><div class="card-inner"><div class="card-front">📺 Flipped Learning</div><div class="card-back"><h4>Aplicación Concreta</h4><p>Docentes generan microvideos explicativos para ser vistos antes de la clase, liberando el tiempo presencial para la discusión y práctica.</p></div></div></div><div class="strategy-card-flipper"><div class="card-inner"><div class="card-front">🌐 Interactividad y Transmedia</div><div class="card-back"><h4>Aplicación Concreta</h4><p>Integrar videos con hipervínculos, QR, infografías y redes para que el relato se expanda a través de múltiples plataformas y formatos.</p></div></div></div></div></section>
+            <section id="conclusion"><h2>📈 Conclusión: Tu Nuevo Rol</h2><p>Estas teorías impulsan una educación más abierta, descentralizada y creativa. El audiovisual no es solo una herramienta, sino un lenguaje pedagógico en sí mismo. El docente se convierte en <strong>diseñador de experiencias</strong>, y el estudiante en <strong>creador activo de conocimiento</strong>.</p></section>
         </div>
-
-        <!-- SECCIÓN 3: ESTRATEGIAS AUDIOVISUALES -->
-        <section id="strategies-section">
-            <h2>🎥 Estrategias Audiovisuales en Acción</h2>
-            <div class="strategies-grid">
-                <div class="strategy-card-flipper">
-                    <div class="card-inner">
-                        <div class="card-front">🎙️ Storytelling Digital</div>
-                        <div class="card-back"><h4>Aplicación Concreta</h4><p>Crear historias personales, científicas o ficticias en formato audiovisual para desarrollar la empatía y la estructura narrativa.</p></div>
-                    </div>
-                </div>
-                <div class="strategy-card-flipper">
-                    <div class="card-inner">
-                        <div class="card-front">🎞️ Videoeducación Participativa</div>
-                        <div class="card-back"><h4>Aplicación Concreta</h4><p>Los alumnos diseñan, graban y editan su propio contenido como parte del proceso de aprendizaje, fomentando la autonomía.</p></div>
-                    </div>
-                </div>
-                <div class="strategy-card-flipper">
-                    <div class="card-inner">
-                        <div class="card-front">📺 Flipped Learning</div>
-                        <div class="card-back"><h4>Aplicación Concreta</h4><p>Docentes generan microvideos explicativos para ser vistos antes de la clase, liberando el tiempo presencial para la discusión y práctica.</p></div>
-                    </div>
-                </div>
-                <div class="strategy-card-flipper">
-                    <div class="card-inner">
-                        <div class="card-front">🌐 Interactividad y Transmedia</div>
-                        <div class="card-back"><h4>Aplicación Concreta</h4><p>Integrar videos con hipervínculos, QR, infografías y redes para que el relato se expanda a través de múltiples plataformas y formatos.</p></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 4: CONCLUSIÓN -->
-        <section id="conclusion">
-            <h2>📈 Conclusión: Tu Nuevo Rol</h2>
-            <p>Estas teorías impulsan una educación más abierta, descentralizada y creativa. El audiovisual no es solo una herramienta, sino un lenguaje pedagógico en sí mismo. El docente se convierte en <strong>diseñador de experiencias</strong>, y el estudiante en <strong>creador activo de conocimiento</strong>.</p>
-        </section>
+        <footer><p>Concepto y desarrollo por IA Asistente | Basado en la síntesis de teorías pedagógicas.</p></footer>
+        <div id="modal" class="hidden"><div id="modal-content"><h3 id="modal-title"></h3><p id="modal-definition"></p><button id="modal-close">Cerrar</button></div></div>
     </main>
-
-    <footer>
-        <p>Creado por el Profesor de Realización Audiovisual MIGUELANGEL TISERA para el Diplomado docente de la Universidad Alejandro de Humboldt.</p>
-    </footer>
-
-    <!-- MODAL PARA TÉRMINOS INTERACTIVOS -->
-    <div id="modal" class="hidden">
-        <div id="modal-content">
-            <h3 id="modal-title"></h3>
-            <p id="modal-definition"></p>
-            <button id="modal-close">Cerrar</button>
-        </div>
-    </div>
-
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // (Todo el Javascript va aquí, sin cambios)
+            const mapContainer=document.getElementById('concept-map-container');const centralNode=document.getElementById('node-central');const theoryNodes=document.querySelectorAll('.theory-node');const svgLines=document.getElementById('map-lines');function drawLines(){if(!centralNode||window.innerWidth<=768)return;svgLines.innerHTML='';const centralRect=centralNode.getBoundingClientRect();const containerRect=mapContainer.getBoundingClientRect();const centralX=centralRect.left-containerRect.left+centralRect.width/2;const centralY=centralRect.top-containerRect.top+centralRect.height/2;theoryNodes.forEach(node=>{const nodeRect=node.getBoundingClientRect();const nodeX=nodeRect.left-containerRect.left+nodeRect.width/2;const nodeY=nodeRect.top-containerRect.top+nodeRect.height/2;const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',centralX);line.setAttribute('y1',centralY);line.setAttribute('x2',nodeX);line.setAttribute('y2',nodeY);line.setAttribute('stroke','#34495e');line.setAttribute('stroke-width','2');svgLines.appendChild(line)})}
+            function positionNodes(){if(window.innerWidth<=768)return;const radius=mapContainer.offsetWidth/2.5;const angleStep=(2*Math.PI)/theoryNodes.length;theoryNodes.forEach((node,index)=>{const angle=angleStep*index-(Math.PI/2);const x=50+(radius/mapContainer.offsetWidth*100)*Math.cos(angle);const y=50+(radius/mapContainer.offsetHeight*100)*Math.sin(angle);node.style.left=`${x}%`;node.style.top=`${y}%`;node.style.transform='translate(-50%, -50%)'});drawLines()}
+            theoryNodes.forEach(node=>{node.addEventListener('click',()=>{const targetId=node.dataset.target;const targetElement=document.querySelector(targetId);if(targetElement){targetElement.scrollIntoView({behavior:'smooth',block:'center'})}})});
+            positionNodes();window.addEventListener('resize',positionNodes);const interactiveTerms=document.querySelectorAll('.interactive-term');const modal=document.getElementById('modal');const modalTitle=document.getElementById('modal-title');const modalDefinition=document.getElementById('modal-definition');const modalClose=document.getElementById('modal-close');interactiveTerms.forEach(term=>{term.addEventListener('click',()=>{modalTitle.textContent=term.dataset.title;modalDefinition.textContent=term.dataset.definition;modal.classList.remove('hidden')})});function closeModal(){modal.classList.add('hidden')}
+            modalClose.addEventListener('click',closeModal);modal.addEventListener('click',(e)=>{if(e.target===modal){closeModal()}});const produceBtn=document.getElementById('produce-btn');const videoScriptInput=document.getElementById('video-script');const videoOutput=document.getElementById('video-output');const outputScript=document.getElementById('output-script');
+            produceBtn.addEventListener('click',()=>{const scriptText=videoScriptInput.value.trim();if(scriptText){outputScript.textContent=`"${scriptText}"`;videoOutput.classList.remove('hidden')}else{alert('Por favor, escribe un guion antes de producir.')}});const analysisBtns=document.querySelectorAll('.analysis-btn');analysisBtns.forEach(btn=>{btn.addEventListener('click',()=>{btn.classList.toggle('active')})});const hotspots=document.querySelectorAll('.hotspot');hotspots.forEach(hotspot=>{hotspot.addEventListener('click',()=>{const mission=hotspot.dataset.mission;alert(`¡Nueva Misión!\\n\\n${mission}`)})});const flipperCards=document.querySelectorAll('.strategy-card-flipper');flipperCards.forEach(card=>{card.addEventListener('click',()=>{card.classList.toggle('is-flipped')})});
+        });
+    </script>
 </body>
 </html>
